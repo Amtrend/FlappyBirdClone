@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.Random;
@@ -32,15 +34,20 @@ public class FlappyBird extends ApplicationAdapter {
 	float distanceBetweenTubes;
 
 	Circle birdCircle;
-	ShapeRenderer shapeRenderer;
+	Rectangle[] topTubesRectangles;
+	Rectangle[] bottomTubesRectangles;
+//	ShapeRenderer shapeRenderer;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		background = new Texture("background.png");
 
+//		shapeRenderer = new ShapeRenderer();
+
 		birdCircle = new Circle();
-		shapeRenderer = new ShapeRenderer();
+		topTubesRectangles = new Rectangle[tubesNumber];
+		bottomTubesRectangles = new Rectangle[tubesNumber];
 
 		bird = new Texture[2];
 		bird[0] = new Texture("bird_wings_up.png");
@@ -54,6 +61,9 @@ public class FlappyBird extends ApplicationAdapter {
 		for (int i = 0; i < tubesNumber; i++) {
 			tubeX[i] = Gdx.graphics.getWidth() / 2 - topTube.getWidth() / 2 + i * distanceBetweenTubes;
 			tubeShift[i] = (random.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - spaceBetweenTubes - 200);
+
+			topTubesRectangles[i] = new Rectangle();
+			bottomTubesRectangles[i] = new Rectangle();
 		}
 
 	}
@@ -96,6 +106,9 @@ public class FlappyBird extends ApplicationAdapter {
 
 			batch.draw(topTube, tubeX[i], Gdx.graphics.getHeight() / 2 + spaceBetweenTubes / 2 + tubeShift[i]);
 			batch.draw(bottomTube, tubeX[i], Gdx.graphics.getHeight() / 2 - spaceBetweenTubes / 2 - bottomTube.getHeight() + tubeShift[i]);
+
+			topTubesRectangles[i] = new Rectangle(tubeX[i], Gdx.graphics.getHeight() / 2 + spaceBetweenTubes / 2 + tubeShift[i], topTube.getWidth(), topTube.getHeight());
+			bottomTubesRectangles[i] = new Rectangle(tubeX[i], Gdx.graphics.getHeight() / 2 - spaceBetweenTubes / 2 - bottomTube.getHeight() + tubeShift[i], bottomTube.getWidth(), bottomTube.getHeight());
 		}
 
 		if (birdStateFlag == 0) {
@@ -109,9 +122,19 @@ public class FlappyBird extends ApplicationAdapter {
 		batch.end();
 
 		birdCircle.set(Gdx.graphics.getWidth() / 2, flyHeight + bird[birdStateFlag].getHeight() / 2, bird[birdStateFlag].getWidth() / 2);
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-		shapeRenderer.setColor(Color.CYAN);
-		shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
-		shapeRenderer.end();
+//		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//		shapeRenderer.setColor(Color.CYAN);
+//		shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
+
+		for (int i = 0; i < tubesNumber; i++) {
+//			shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 + spaceBetweenTubes / 2 + tubeShift[i], topTube.getWidth(), topTube.getHeight());
+//			shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 - spaceBetweenTubes / 2 - bottomTube.getHeight() + tubeShift[i], bottomTube.getWidth(), bottomTube.getHeight());
+
+			if (Intersector.overlaps(birdCircle, topTubesRectangles[i]) || Intersector.overlaps(birdCircle, bottomTubesRectangles[i])) {
+				Gdx.app.log("Intersected", "Bump!");
+			}
+		}
+
+//		shapeRenderer.end();
 	}
 }
