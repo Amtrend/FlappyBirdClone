@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
@@ -37,6 +38,11 @@ public class FlappyBird extends ApplicationAdapter {
 	Rectangle[] topTubesRectangles;
 	Rectangle[] bottomTubesRectangles;
 //	ShapeRenderer shapeRenderer;
+
+	int gameScore = 0;
+	int passedTubeIndex = 0;
+
+	BitmapFont scoreFont;
 	
 	@Override
 	public void create () {
@@ -56,6 +62,10 @@ public class FlappyBird extends ApplicationAdapter {
 		topTube = new Texture("top_tube.png");
 		bottomTube = new Texture("bottom_tube.png");
 		random = new Random();
+
+		scoreFont = new BitmapFont();
+		scoreFont.setColor(Color.CYAN);
+		scoreFont.getData().setScale(10);
 
 		distanceBetweenTubes = Gdx.graphics.getWidth() / 2;
 		for (int i = 0; i < tubesNumber; i++) {
@@ -80,6 +90,18 @@ public class FlappyBird extends ApplicationAdapter {
 		}
 
 		if (gameStateFlag == 1) {
+
+			Gdx.app.log("Game score", String.valueOf(gameScore));
+
+			if (tubeX[passedTubeIndex] < Gdx.graphics.getWidth() / 2) {
+				gameScore++;
+
+				if (passedTubeIndex < tubesNumber - 1) {
+					passedTubeIndex++;
+				} else {
+					passedTubeIndex = 0;
+				}
+			}
 
 			if (Gdx.input.justTouched()) {
 				fallingSpeed = -30;
@@ -119,6 +141,9 @@ public class FlappyBird extends ApplicationAdapter {
 
 
 		batch.draw(bird[birdStateFlag], Gdx.graphics.getWidth() / 2 - bird[birdStateFlag].getWidth() / 2, flyHeight);
+
+		scoreFont.draw(batch, String.valueOf(gameScore), 100, 200);
+
 		batch.end();
 
 		birdCircle.set(Gdx.graphics.getWidth() / 2, flyHeight + bird[birdStateFlag].getHeight() / 2, bird[birdStateFlag].getWidth() / 2);
